@@ -3,7 +3,7 @@ package com.huaguoguo.entity.websocket;
 /**
  * 浏览器向服务端发送的消息
  */
-public class AricMessage {
+public class WiselyMessage  {
 
     private String name;
 
@@ -17,7 +17,7 @@ public class AricMessage {
 
     @Override
     public String toString() {
-        return "AricMessage{" +
+        return "WiselyMessage{" +
                 "name='" + name + '\'' +
                 '}';
     }

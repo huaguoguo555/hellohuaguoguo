@@ -1,5 +1,6 @@
 package com.huaguoguo.config;
 
+import com.huaguoguo.constant.WebSocketConstant;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
@@ -10,6 +11,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 //注解开启使用STOMP协议来传输基于代理(message broker)的消息,这时控制器支持使用@MessageMapping,就像使用@RequestMapping一样
 @EnableWebSocketMessageBroker
 public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer{
+
     /**
      * 注册STOMP协议的节点(endpoint),并映射指定的url
      * @param stompEndpointRegistry
@@ -17,7 +19,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer{
     @Override
     public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
         //注册一个STOMP的endpoint,并指定使用SockJS协议
-        stompEndpointRegistry.addEndpoint("/endpointAric").withSockJS();
+        stompEndpointRegistry.addEndpoint(WebSocketConstant.WEBSOCKETPATH).withSockJS();
     }
 
     /**
@@ -27,6 +29,10 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer{
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         //广播式应配置一个/topic消息代理
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker(WebSocketConstant.WEBSOCKETBROADCASTPATH);
+        //定义一对一推送的时候前缀
+        registry.setUserDestinationPrefix(WebSocketConstant.P2PPUSHBASEPATH);
+        //定义websoket前缀
+        registry.setApplicationDestinationPrefixes(WebSocketConstant.WEBSOCKETPATHPERFIX);
     }
 }

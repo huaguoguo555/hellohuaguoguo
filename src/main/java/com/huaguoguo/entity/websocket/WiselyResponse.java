@@ -3,11 +3,11 @@ package com.huaguoguo.entity.websocket;
 /**
  * 服务端向浏览器发送的消息
  */
-public class AricResponse {
+public class WiselyResponse {
 
     private String responseMessage;
 
-    public AricResponse(String responseMessage) {
+    public WiselyResponse(String responseMessage) {
         this.responseMessage = responseMessage;
     }
 
