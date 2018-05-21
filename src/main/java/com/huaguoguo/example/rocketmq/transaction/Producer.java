@@ -11,7 +11,7 @@ public class Producer {
     public static void main(String[] args) throws MQClientException, InterruptedException {
 
         TransactionMQProducer producer = new TransactionMQProducer("transaction_Producer");
-        producer.setNamesrvAddr("111.230.94.68:9876");
+        producer.setNamesrvAddr("xxx:9876");
 
 
         // 事务回查最小并发数

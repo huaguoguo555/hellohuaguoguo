@@ -24,7 +24,7 @@ public class Consumer {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("conusmer_huaguoguo");
 
 
-        consumer.setNamesrvAddr("111.230.94.68:9876");
+        consumer.setNamesrvAddr("xxx:9876");
 
         /*
          * Specify where to start in case the specified consumer group is a brand new one.

@@ -31,7 +31,7 @@ public class Consumer1 {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("order_Consumer");
 
 
-        consumer.setNamesrvAddr("111.230.94.68:9876");
+        consumer.setNamesrvAddr("xxx:9876");
 
         /*
          * 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费

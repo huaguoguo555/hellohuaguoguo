@@ -17,7 +17,7 @@ public class Consumer {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("transaction_Consumer");
 
 
-        consumer.setNamesrvAddr("111.230.94.68:9876");
+        consumer.setNamesrvAddr("xxx:9876");
         /*
         * 每次拉取10条
         * */

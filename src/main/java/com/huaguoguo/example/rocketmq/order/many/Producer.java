@@ -24,7 +24,7 @@ public class Producer {
 
 
         DefaultMQProducer producer = new DefaultMQProducer("order_Producer");
-        producer.setNamesrvAddr("111.230.94.68:9876");
+        producer.setNamesrvAddr("xxx:9876");
 
         producer.start();
 
