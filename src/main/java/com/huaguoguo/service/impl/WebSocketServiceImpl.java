@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class WebSocketServiceImpl implements WebSocketService {
-    @Autowired
+    //@Autowired
     private SimpMessagingTemplate template;
 
     @Override

@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * webSocket控制器
  */
-@Controller
+//@Controller
 public class WebSocketController {
 
     @Autowired
@@ -27,8 +27,9 @@ public class WebSocketController {
         List<String> users = new ArrayList<>();
         users.add("d892bf12bf7d11e793b69c5c8e6f60fb");//此处写死只是为了方便测试,此值需要对应页面中订阅个人消息的userId
         webSocketService.send2Users(users, new WiselyResponse("admin hello"));
-
-        return new WiselyResponse("Welcome, " + message.getName() + "!");
+        webSocketService.sendMsg(new WiselyResponse("Welcome, " + message.getName() + "!"));
+        return new WiselyResponse("hello");
     }
+
 
 }

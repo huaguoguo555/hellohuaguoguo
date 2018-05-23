@@ -17,4 +17,9 @@ public class PageController {
     public String toWebSocket(){
         return "webSocket";
     }
+
+    @RequestMapping(value = "toWebSocketToUser",method = RequestMethod.GET)
+    public String toWebSocketToUser(){
+        return "webSocketToUser";
+    }
 }
