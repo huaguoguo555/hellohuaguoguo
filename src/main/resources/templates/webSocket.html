@@ -8,38 +8,34 @@
     <script th:src="@{jquery.js}"></script>-->
     <!--<script src="https://cdn.bootcss.com/sockjs-client/1.1.4/sockjs.min.js"></script>-->
     <!--<script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>-->
-    <!--<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>-->
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
 <noscript><h2 style="color:#ff0000">抱歉,您的浏览器不支持改功能!</h2></noscript>
 <div>
     <div>
-        <button id="connect" onclick="start();">发送消息</button>
+        <button id="connect" onclick="connect();">连接</button>
         <button id="disconnect" disabled="disabled" onclick="disconnect();">断开连接</button>
+    </div>
+    <div>
+        <label>发送消息</label><input type="text" id="sendContent"/>
+        <button id="connect" onclick="start();">发送消息</button>
     </div>
     <div id="conversationDiv">
         <div id="messages"></div>
+        <p>--------------------------------</p>
+        <div id="response"></div>
     </div>
+
+
 </div>
 </body>
 <script type="text/javascript">
-    var token = guid();
-    var webSocket = new WebSocket('ws://localhost:8080/websocket/'+token);
-
-    webSocket.onerror = function(event) {
-        alert(event.data);
-    };
-    //与WebSocket建立连接
-    webSocket.onopen = function(event) {
-        document.getElementById('messages').innerHTML = '与服务器端建立连接';
-    };
-    //处理服务器返回的信息
-    webSocket.onmessage = function(event) {
-        document.getElementById('messages').innerHTML += '<br />'+ event.data;
-    };
+    var webSocket = null;
     function start() {
+        var sendContent = $("#sendContent").val();
         //向服务器发送请求
-        webSocket.send('我是'+token);
+        webSocket.send(sendContent);
     }
 
     function guid() {
@@ -47,6 +43,43 @@
             return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
         }
         return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    }
+
+
+    function connect() {
+
+        var token = guid();
+        webSocket = new WebSocket('ws://localhost:8080/websocket/'+token);
+        setConnected(true);
+        webSocket.onerror = function(event) {
+            alert(event.data);
+        };
+        //与WebSocket建立连接
+        webSocket.onopen = function(event) {
+            document.getElementById('response').innerHTML += '<br />'+ '与服务器端建立连接';
+        };
+        //处理服务器返回的信息
+        webSocket.onmessage = function(event) {
+            var message = event.data;
+            if(message.indexOf("服务器") != -1){
+                document.getElementById('response').innerHTML += '<br />'+ event.data;
+            }else {
+                document.getElementById('messages').innerHTML += '<br />'+ event.data;
+            }
+
+        };
+    }
+
+    function disconnect() {
+        webSocket.close();
+        setConnected(false);
+        document.getElementById('response').innerHTML += '<br />'+ '与服务器端断开连接';
+    }
+
+    function setConnected(connected) {
+        document.getElementById('connect').disabled = connected;
+        document.getElementById('disconnect').disabled = !connected;
+        $("#response").html();
     }
 </script>
 </html>

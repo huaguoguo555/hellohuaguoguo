@@ -34,7 +34,7 @@ public class EzgoWebSocket {
     private String token;
 
     private static final Logger logger = LoggerFactory.getLogger(EzgoWebSocket.class);
-    
+
     /**
      * 连接建立成功调用的方法
      */
@@ -44,7 +44,7 @@ public class EzgoWebSocket {
         this.session = session;
         webSocketSet.add(this); // 加入set中
         addOnlineCount(); // 在线数加1
-        logger.info("有新连接加入！当前在线人数为" + getOnlineCount()+"token-----"+this.token);
+        logger.info("有新连接加入！当前在线人数为" + getOnlineCount() + "token-----" + this.token);
     }
 
     /**
@@ -54,7 +54,7 @@ public class EzgoWebSocket {
     public void onClose() {
         webSocketSet.remove(this); // 从set中删除
         subOnlineCount(); // 在线数减1
-        logger.info("有一连接关闭！当前在线人数为" + getOnlineCount()+"token-----"+this.token);
+        logger.info("有一连接关闭！当前在线人数为" + getOnlineCount() + "token-----" + this.token);
     }
 
     /**
@@ -64,20 +64,20 @@ public class EzgoWebSocket {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-        // 群发消息
-        for (EzgoWebSocket item : webSocketSet) {
-            try {
-                item.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            // 群发消息
+            for (EzgoWebSocket item : webSocketSet) {
+                item.sendMessage("这是[" + this.token + "]发送的消息：" + message);
             }
+            this.sendMessage("服务器：我收到你的消息（"+message+"）了"+"-"+this.token);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
     }
 
     /**
      * 发生错误时调用
-     * 
-     * 
      */
     @OnError
     public void onError(Session session, Throwable error) {

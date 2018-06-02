@@ -22,4 +22,9 @@ public class PageController {
     public String toWebSocketToUser(){
         return "webSocketToUser";
     }
+
+    @RequestMapping(value = "chatIndex",method = RequestMethod.GET)
+    public String toChatRoomIndex(){
+        return "chatRoom/index";
+    }
 }
