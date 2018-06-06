@@ -36,6 +36,20 @@ public class EzgoWebSocket {
     private static final Logger logger = LoggerFactory.getLogger(EzgoWebSocket.class);
 
     /**
+     * 通过token取对应的EzgoWebSocket对象
+     * @param token
+     * @return
+     */
+    public static EzgoWebSocket get(String token){
+        for (EzgoWebSocket  item : webSocketSet) {
+            if (token.equals(item.getToken())){
+                return  item;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 连接建立成功调用的方法
      */
     @OnOpen
@@ -115,5 +129,6 @@ public class EzgoWebSocket {
     public void setToken(String token) {
         this.token = token;
     }
+
 
 }

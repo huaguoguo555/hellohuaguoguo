@@ -11,4 +11,5 @@ public interface JedisClient {
 	void del(String key);
 	Long hdel(String hkey, String key);
 	void expire(String key, int second);
+	void incr(String key,Long number);
 }

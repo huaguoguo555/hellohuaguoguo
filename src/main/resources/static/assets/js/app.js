@@ -9,6 +9,7 @@ app.factory('MyData', function ($websocket) {
         var messages = [];
 
         messages.push('欢迎来到建华联盟');
+        messages.push('嘿哈');
         dataStream.onMessage(function (message) {
             messages.push(JSON.parse(message.data).data.desp);
         });
@@ -24,7 +25,6 @@ app.factory('MyData', function ($websocket) {
     });
 
 app.controller('chatCtrl', function ($scope,MyData) {
-        alert(MyData);
         $scope.MyData = MyData;
     });
 

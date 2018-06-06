@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/style/app.css"/>
+    <script>
+        function login() {
+            $('#loginForm').ajaxSubmit(      //ajax方式提交表单
+                {
+                    url: '/login',
+                    type: 'post',
+                    dataType: 'json',
+                    beforeSubmit: function () {},
+                    success: function (data) {
+                        if (data.status == 200) {
+                            alert(data.msg);
+                            window.location.href = "/chatUI/index.html";
+                        } else {
+                            alert(data.msg);
+                        }
+                    },
+                    clearForm: false,//禁止清楚表单
+                    resetForm: false //禁止重置表单
+                });
+        }
+    </script>
+</head>
+<body>
+
+
+<div class="userform-wrapper" >
+    <form class="form-inline login" novalidate id="loginForm">
+        <div class="form-group">
+            <label for="nickname" class="sr-only"></label>
+            <div class="input-group">
+                <div class="input-group-addon"><span class="glyphicon glyphicon-user"></span></div>
+                <input type="text" class="form-control" id="nickname" placeholder="你的名字" required/>
+            </div>
+        </div>
+        <button  class="btn btn-primary" onclick="login()">登录</button>
+        <p >输入一个用户名登录进去就完事了哦</p>
+    </form>
+</div>
+</body>
+</html>

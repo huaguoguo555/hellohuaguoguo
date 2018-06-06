@@ -7,7 +7,7 @@ html,body{
     height:100%;
 }
 body{
-    background: url(https://res.wx.qq.com/zh_CN/htmledition/v2/images/web_wechat_login_bg27a55f.jpg);
+    background: url(/chatUI/image/pic/loginBack.jpg);
     -webkit-background-size: cover;
     background-size: cover;
 }
@@ -20,9 +20,7 @@ body{
     /*-o-transition: all 1s;*/
     /*transition: all 1s;*/
 }
-.userform-wrapper{
-    background-color:#242628;
-}
+
 
 .userform-wrapper form.login{
     text-align: center;

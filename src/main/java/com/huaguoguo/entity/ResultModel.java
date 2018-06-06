@@ -33,9 +33,8 @@ public class ResultModel<T> extends Result {
 	 * 成功返回状态和数据
 	 * 
 	 * @param data
-	 * @param status
 	 */
-	public ResultModel(long status, T data) {
+	public ResultModel(T data) {
 		super.setStatus(HttpStatus.SC_OK);
 		this.data = data;
 	}

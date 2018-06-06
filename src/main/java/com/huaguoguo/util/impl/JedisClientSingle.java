@@ -51,7 +51,15 @@ public class JedisClientSingle implements JedisClient {
 		stringRedisTemplate.expire(key,second, TimeUnit.SECONDS);
 	}
 
-
+	/**
+	 * key对应的val增减操作
+	 * @param key
+	 * @param number 增减的数值
+	 */
+	@Override
+	public void incr(String key,Long number) {
+		stringRedisTemplate.boundValueOps(key).increment(1);
+	}
 
 
 }

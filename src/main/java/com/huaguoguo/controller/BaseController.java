@@ -11,4 +11,5 @@ public class BaseController {
     public String hello(){
         return "hello huaguoguo";
     }
+
 }
