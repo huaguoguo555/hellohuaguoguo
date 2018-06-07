@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery.form/3.24/jquery.form.js"></script>
     <link href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/style/app.css"/>
 
@@ -12,15 +13,15 @@
 
 
 <div class="userform-wrapper">
-    <form class="form-inline login" novalidate id="loginForm" action="">
+    <form class="form-inline login" novalidate id="loginForm" method="post">
         <div class="form-group">
             <label for="nickname" class="sr-only">名字</label>
             <div class="input-group">
                 <div class="input-group-addon"><span class="glyphicon glyphicon-user">名字</span></div>
-                <input type="text" class="form-control" id="nickname" placeholder="你的名字" required/>
+                <input type="text" class="form-control" id="nickName" name="nickName" placeholder="你的名字" required/>
             </div>
         </div>
-        <button class="btn btn-primary" onclick="login()">登录</button>
+        <input type="button" class="btn btn-primary" onclick="login()">登录12</input>
         <p>输入一个用户名登录进去就完事了哦</p>
     </form>
 </div>
@@ -30,7 +31,8 @@
             url: '/login',
             type: 'post',
             dataType: 'json',
-            data:$("#loginForm").serialize(),
+            data:JSON.stringify($("#loginForm").serializeObject()),
+            contentType: "application/json",
             success: function (data) {
                 if (data.status == 200) {
                     alert(data.msg);
@@ -41,6 +43,25 @@
             }
         });
     }
+
+    /**
+     * 自动将form表单封装成json对象
+     */
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [ o[this.name] ];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
 </script>
 </body>
 </html>

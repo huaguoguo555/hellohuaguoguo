@@ -27,4 +27,9 @@ public class PageController {
     public String toChatRoomIndex(){
         return "chatRoom/index";
     }
+
+    @RequestMapping(value = "login",method = RequestMethod.GET)
+    public String login(){
+        return "login";
+    }
 }
