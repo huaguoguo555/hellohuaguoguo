@@ -6,6 +6,7 @@ import com.huaguoguo.service.LoginService;
 import com.huaguoguo.util.JedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.Map;
 
-@RestController("/login")
+@RestController
 public class LoginController {
 
     @Autowired
     private LoginService loginService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public Object login(Map<String,Object> input) throws IOException {
+    @RequestMapping(value = "/login",method = RequestMethod.POST)
+    public Object login(@RequestBody Map<String,Object> input) throws IOException {
         ResultModel result = new ResultModel();
         if (StringUtils.isEmpty(input.get("nickName"))){
             result.setStatus(500L);
@@ -30,4 +31,5 @@ public class LoginController {
         result = loginService.login(input);
         return result;
     }
+
 }

@@ -1,6 +1,8 @@
 package com.huaguoguo.config.websocket;
 
 import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.websocket.OnClose;
@@ -11,8 +13,15 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import com.alibaba.fastjson.JSON;
+import com.huaguoguo.entity.websocket.WebSocketMessage;
+import com.huaguoguo.service.TokenService;
+import com.huaguoguo.util.CheckUtil;
+import com.huaguoguo.util.JsonUtil;
+import jdk.nashorn.internal.parser.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
@@ -20,33 +29,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class EzgoWebSocket {
 
+    @Autowired
+    private TokenService tokenService;
 
     // 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
 
-    // concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。
-    public static CopyOnWriteArraySet<EzgoWebSocket> webSocketSet = new CopyOnWriteArraySet<EzgoWebSocket>();
+
+    public static Map<String, EzgoWebSocket> webSocketMap = new HashMap<>();
 
     // 与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
 
+    private String nickName;
     // 登录用户
     private String token;
 
     private static final Logger logger = LoggerFactory.getLogger(EzgoWebSocket.class);
 
     /**
-     * 通过token取对应的EzgoWebSocket对象
-     * @param token
+     * 通过nickName取对应的EzgoWebSocket对象
+     *
+     * @param nickName
      * @return
      */
-    public static EzgoWebSocket get(String token){
-        for (EzgoWebSocket  item : webSocketSet) {
-            if (token.equals(item.getToken())){
-                return  item;
-            }
-        }
-        return null;
+    public static EzgoWebSocket get(String nickName) {
+        return webSocketMap.get(nickName);
     }
 
     /**
@@ -56,9 +64,10 @@ public class EzgoWebSocket {
     public void onOpen(@PathParam("Token") String token, Session session) {
         this.token = token;
         this.session = session;
-        webSocketSet.add(this); // 加入set中
+        this.nickName = tokenService.getUserInfoId(token);
+        webSocketMap.put(nickName, this); // 加入map中
         addOnlineCount(); // 在线数加1
-        logger.info("有新连接加入！当前在线人数为" + getOnlineCount() + "token-----" + this.token);
+        logger.info("有新连接加入！当前在线人数为" + getOnlineCount() + "nickName-----" + this.nickName);
     }
 
     /**
@@ -66,9 +75,9 @@ public class EzgoWebSocket {
      */
     @OnClose
     public void onClose() {
-        webSocketSet.remove(this); // 从set中删除
+        webSocketMap.remove(nickName);
         subOnlineCount(); // 在线数减1
-        logger.info("有一连接关闭！当前在线人数为" + getOnlineCount() + "token-----" + this.token);
+        logger.info("有一连接关闭！当前在线人数为" + getOnlineCount() + "nickName-----" + this.nickName);
     }
 
     /**
@@ -78,16 +87,50 @@ public class EzgoWebSocket {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
+        logger.info("接收到客户端的消息：{}",message);
         try {
-            // 群发消息
-            for (EzgoWebSocket item : webSocketSet) {
-                item.sendMessage("这是[" + this.token + "]发送的消息：" + message);
+            WebSocketMessage model = JsonUtil.jsonToObj(message, WebSocketMessage.class);
+            //检测通过正常发送消息
+            WebSocketMessage checkMessageModel = CheckUtil.checkMessageModel(model);
+            if (checkMessageModel == null) {
+                switch (model.getType()){
+                    case "user":
+                        p2pSend(model);
+                        break;
+                    case "mass":
+                        massSend(model);
+                        break;
+                }
+            }else {//发送给发送人提示消息失败
+                checkMessageModel.setAvatar(this.nickName);
+                checkMessageModel.setReceiver(this.nickName);
+                p2pSend(checkMessageModel);
             }
-            this.sendMessage("服务器：我收到你的消息（"+message+"）了"+"-"+this.token);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("向客户端推送消息异常", e);
         }
 
+    }
+
+    private void p2pSend(WebSocketMessage message) throws IOException {
+        String receiver = message.getReceiver();
+        EzgoWebSocket ezgoWebSocket = webSocketMap.get(receiver);
+        ezgoWebSocket.sendMessage(JsonUtil.toJson(message));
+    }
+
+    /**
+     * 群发消息
+     * @param message
+     * @throws IOException
+     */
+    private void massSend(WebSocketMessage message) throws IOException {
+        // 群发消息
+        Set<String> keySet = webSocketMap.keySet();
+        Iterator<String> iterator = keySet.iterator();
+        while (iterator.hasNext()) {
+            EzgoWebSocket item = webSocketMap.get(iterator.next());
+            item.sendMessage(JsonUtil.toJson(message));
+        }
     }
 
     /**
@@ -130,5 +173,11 @@ public class EzgoWebSocket {
         this.token = token;
     }
 
+    public String getNickName() {
+        return nickName;
+    }
 
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 }
