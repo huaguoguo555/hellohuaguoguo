@@ -1,4 +1,9 @@
-var webSocket = null;
+$(document).ready(function(){
+    var webSocket = null;
+    connect();
+});
+
+
 function send() {
     var sendContent = $("#sendContent").val();
     //向服务器发送请求
@@ -6,9 +11,8 @@ function send() {
 }
 
 function connect() {
-
-    webSocket = new WebSocket('ws://localhost:8080/websocket/'+token);
-    setConnected(true);
+    var authToken = $.cookie('authToken');
+    webSocket = new WebSocket('ws://localhost:8080/websocket/'+authToken);
     webSocket.onerror = function(event) {
         alert(event.data);
     };
@@ -26,12 +30,6 @@ function connect() {
 
 function disconnect() {
     webSocket.close();
-    setConnected(false);
     document.getElementById('response').innerHTML += '<br />'+ '与服务器端断开连接';
 }
 
-function setConnected(connected) {
-    document.getElementById('connect').disabled = connected;
-    document.getElementById('disconnect').disabled = !connected;
-    $("#response").html();
-}

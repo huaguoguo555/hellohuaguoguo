@@ -15,40 +15,40 @@ import java.util.concurrent.TimeUnit;
 public class JedisClientSingle implements JedisClient {
 
 	@Autowired
-	private RedisTemplate<String,String> stringRedisTemplate;
+	private RedisTemplate<String,String> redisTemplate;
 
 	public String get(String key) {
-		String result = stringRedisTemplate.opsForValue().get(key);
+		String result = redisTemplate.opsForValue().get(key);
 		return result;
 	}
 
 	public void set(String key, String value) {
-		stringRedisTemplate.opsForValue().set(key,value);
+		redisTemplate.opsForValue().set(key,value);
 	}
 
 
 
 	public void hset(String hkey, String key, String value) {
-		stringRedisTemplate.opsForHash().put(hkey,key,value);
+		redisTemplate.opsForHash().put(hkey,key,value);
 	}
 
 	public String hget(String hkey, String key) {
-		return ((String) stringRedisTemplate.opsForHash().get(hkey, key));
+		return ((String) redisTemplate.opsForHash().get(hkey, key));
 	}
 
 
 
 	public void del(String key) {
-		stringRedisTemplate.delete(key);
+		redisTemplate.delete(key);
 	}
 
 	public Long hdel(String hkey, String key) {
-		Long result = stringRedisTemplate.opsForHash().delete(hkey, key);
+		Long result = redisTemplate.opsForHash().delete(hkey, key);
 		return result;
 	}
 
 	public void expire(String key, int second) {
-		stringRedisTemplate.expire(key,second, TimeUnit.SECONDS);
+		redisTemplate.expire(key,second, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class JedisClientSingle implements JedisClient {
 	 */
 	@Override
 	public void incr(String key,Long number) {
-		stringRedisTemplate.boundValueOps(key).increment(1);
+		redisTemplate.boundValueOps(key).increment(1);
 	}
 
 

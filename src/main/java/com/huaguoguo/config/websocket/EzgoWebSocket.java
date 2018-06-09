@@ -22,15 +22,29 @@ import jdk.nashorn.internal.parser.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 
-@ServerEndpoint(value = "/websocket/{Token}")
+@ServerEndpoint(value = "/websocket/{authToken}")
 @Component
 public class EzgoWebSocket {
 
+    private static TokenService tokenService;
+
     @Autowired
-    private TokenService tokenService;
+    public EzgoWebSocket(TokenService tokenService){
+        this.tokenService = tokenService;
+    }
+
+    public EzgoWebSocket(){}
+
+    public void tokenInfo(){
+        System.out.println(String.valueOf(tokenService));
+    }
 
     // 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
@@ -43,7 +57,7 @@ public class EzgoWebSocket {
 
     private String nickName;
     // 登录用户
-    private String token;
+    private String authToken;
 
     private static final Logger logger = LoggerFactory.getLogger(EzgoWebSocket.class);
 
@@ -61,10 +75,15 @@ public class EzgoWebSocket {
      * 连接建立成功调用的方法
      */
     @OnOpen
-    public void onOpen(@PathParam("Token") String token, Session session) {
-        this.token = token;
+    public void onOpen(@PathParam("authToken") String authToken, Session session) throws IOException {
+        this.authToken = authToken;
         this.session = session;
-        this.nickName = tokenService.getUserInfoId(token);
+        this.nickName = tokenService.getUserInfoId(authToken);
+        if (StringUtils.isEmpty(nickName)){
+            session.close();
+            logger.error("无效authToken,连接中断");
+            return;
+        }
         webSocketMap.put(nickName, this); // 加入map中
         addOnlineCount(); // 在线数加1
         logger.info("有新连接加入！当前在线人数为" + getOnlineCount() + "nickName-----" + this.nickName);
@@ -165,12 +184,12 @@ public class EzgoWebSocket {
         EzgoWebSocket.onlineCount--;
     }
 
-    public String getToken() {
-        return token;
+    public String getAuthToken() {
+        return authToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAuthToken(String token) {
+        this.authToken = authToken;
     }
 
     public String getNickName() {

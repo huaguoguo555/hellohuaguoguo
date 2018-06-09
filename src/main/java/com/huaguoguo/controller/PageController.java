@@ -1,5 +1,8 @@
 package com.huaguoguo.controller;
 
+import com.huaguoguo.config.websocket.EzgoWebSocket;
+import com.huaguoguo.config.websocket.WebSocketConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
@@ -16,8 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class PageController {
 
-    @Value("${aa}")
-    private String aa;
+    @Autowired
+    private EzgoWebSocket webSocket;
 
     @RequestMapping(value = "toWebSocket",method = RequestMethod.GET)
     public String toWebSocket(){
@@ -37,7 +40,8 @@ public class PageController {
     @RequestMapping(value = "login",method = RequestMethod.GET)
     @ResponseBody
     public String login(){
-        return "login-"+aa;
+        webSocket.tokenInfo();
+        return "login";
     }
 
 

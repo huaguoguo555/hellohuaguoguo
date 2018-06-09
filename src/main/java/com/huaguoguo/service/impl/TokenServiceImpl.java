@@ -1,7 +1,6 @@
 package com.huaguoguo.service.impl;
 
 import com.huaguoguo.service.TokenService;
-import com.huaguoguo.util.JedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -13,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class TokenServiceImpl implements TokenService {
     @Autowired
     private RedisTemplate<String,String> redisTemplate;
+
 
     /**
      * token过期时间，小时
@@ -40,7 +40,8 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getUserInfoId(String token) {
-        return null;
+        String userId = redisTemplate.opsForValue().get(token);
+        return userId;
     }
 
     @Override
