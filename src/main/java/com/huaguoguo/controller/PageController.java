@@ -19,9 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class PageController {
 
-    @Autowired
-    private EzgoWebSocket webSocket;
-
     @RequestMapping(value = "toWebSocket",method = RequestMethod.GET)
     public String toWebSocket(){
         return "webSocket";
@@ -40,7 +37,6 @@ public class PageController {
     @RequestMapping(value = "login",method = RequestMethod.GET)
     @ResponseBody
     public String login(){
-        webSocket.tokenInfo();
         return "login";
     }
 

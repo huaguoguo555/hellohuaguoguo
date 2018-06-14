@@ -1,5 +1,6 @@
 package com.huaguoguo.entity.websocket;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Date;
   * @Description: webSocket消息传输对象
   * @Date: 2018/6/7 14:02
   */
-public class WebSocketMessage {
+public class WebSocketMessage implements Serializable{
 
     /**
      * 消息发送人

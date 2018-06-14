@@ -1,32 +1,25 @@
 package com.huaguoguo.config.websocket;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
-
-import com.alibaba.fastjson.JSON;
 import com.huaguoguo.entity.websocket.WebSocketMessage;
 import com.huaguoguo.service.TokenService;
 import com.huaguoguo.util.CheckUtil;
 import com.huaguoguo.util.JsonUtil;
-import jdk.nashorn.internal.parser.Token;
+import com.huaguoguo.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import javax.websocket.*;
+import javax.websocket.server.PathParam;
+import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 
 @ServerEndpoint(value = "/websocket/{authToken}")
@@ -34,17 +27,17 @@ import org.springframework.util.StringUtils;
 public class EzgoWebSocket {
 
     private static TokenService tokenService;
+    private static RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    public EzgoWebSocket(TokenService tokenService){
+    public EzgoWebSocket(TokenService tokenService, RedisTemplate<String, String> redisTemplate) {
         this.tokenService = tokenService;
+        this.redisTemplate = redisTemplate;
     }
 
-    public EzgoWebSocket(){}
-
-    public void tokenInfo(){
-        System.out.println(String.valueOf(tokenService));
+    public EzgoWebSocket() {
     }
+
 
     // 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
@@ -79,14 +72,13 @@ public class EzgoWebSocket {
         this.authToken = authToken;
         this.session = session;
         this.nickName = tokenService.getUserInfoId(authToken);
-        if (StringUtils.isEmpty(nickName)){
+        if (StringUtils.isEmpty(nickName)) {
             session.close();
             logger.error("无效authToken,连接中断");
             return;
         }
         webSocketMap.put(nickName, this); // 加入map中
-        addOnlineCount(); // 在线数加1
-        logger.info("有新连接加入！当前在线人数为" + getOnlineCount() + "nickName-----" + this.nickName);
+        logger.info("有新连接加入！当前在线人数为" + getOnlineCount() + "【nickName-----" + this.nickName + "】");
     }
 
     /**
@@ -94,9 +86,10 @@ public class EzgoWebSocket {
      */
     @OnClose
     public void onClose() {
-        webSocketMap.remove(nickName);
-        subOnlineCount(); // 在线数减1
-        logger.info("有一连接关闭！当前在线人数为" + getOnlineCount() + "nickName-----" + this.nickName);
+        if (!StringUtils.isEmpty(nickName)) {
+            webSocketMap.remove(nickName);
+            logger.info("有一连接关闭！当前在线人数为" + getOnlineCount() + "【nickName-----" + this.nickName + "】");
+        }
     }
 
     /**
@@ -106,13 +99,13 @@ public class EzgoWebSocket {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-        logger.info("接收到客户端的消息：{}",message);
+        logger.info("接收到客户端的消息：{}", message);
         try {
             WebSocketMessage model = JsonUtil.jsonToObj(message, WebSocketMessage.class);
             //检测通过正常发送消息
             WebSocketMessage checkMessageModel = CheckUtil.checkMessageModel(model);
             if (checkMessageModel == null) {
-                switch (model.getType()){
+                switch (model.getType()) {
                     case "user":
                         p2pSend(model);
                         break;
@@ -120,7 +113,7 @@ public class EzgoWebSocket {
                         massSend(model);
                         break;
                 }
-            }else {//发送给发送人提示消息失败
+            } else {//发送给发送人提示消息失败
                 checkMessageModel.setAvatar(this.nickName);
                 checkMessageModel.setReceiver(this.nickName);
                 p2pSend(checkMessageModel);
@@ -135,10 +128,16 @@ public class EzgoWebSocket {
         String receiver = message.getReceiver();
         EzgoWebSocket ezgoWebSocket = webSocketMap.get(receiver);
         ezgoWebSocket.sendMessage(JsonUtil.toJson(message));
+        //保存聊天记录到redis
+        String json = JsonUtil.toJson(message);
+        logger.info("存入redis的聊天记录{}", json);
+        String chatKey = StringTool.genUserChatKey(receiver, message.getAvatar());
+        redisTemplate.opsForList().rightPush(chatKey, json);
     }
 
     /**
      * 群发消息
+     *
      * @param message
      * @throws IOException
      */
@@ -172,17 +171,10 @@ public class EzgoWebSocket {
         }
     }
 
-    public static synchronized int getOnlineCount() {
-        return onlineCount;
+    public int getOnlineCount() {
+        return webSocketMap.size();
     }
 
-    public static synchronized void addOnlineCount() {
-        EzgoWebSocket.onlineCount++;
-    }
-
-    public static synchronized void subOnlineCount() {
-        EzgoWebSocket.onlineCount--;
-    }
 
     public String getAuthToken() {
         return authToken;
