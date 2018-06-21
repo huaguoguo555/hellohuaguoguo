@@ -15,7 +15,7 @@ public class WebSocketMessage implements Serializable{
      */
     private String avatar;
     /**
-     * 消息类型 user-用户消息 system-系统消息 ，mass-群消息 , error-错误提示
+     * 消息类型 user-用户消息 system-系统消息 ，mass-群消息 , error-错误提示,online-上线通知
      */
     private String type;
     /**

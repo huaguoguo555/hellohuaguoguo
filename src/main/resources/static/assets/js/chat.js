@@ -1,9 +1,10 @@
 $(document).ready(function () {
-    var webSocket = null;
-    connect();
+    var webSocket = connect();
 
     $('#send').keyup(function (t) {
+
         if (t.ctrlKey && t.which == 13) {
+            console.log(webSocket);
             if (isNull(sendContent)) {
                 alert("不要发空字符串，好吗？");
                 return;
@@ -36,13 +37,16 @@ $(document).ready(function () {
             //清除输入框的内容
             $("#send").val("");
             //使用websocket发送消息
-            webSocket.send(message);
+            var jsonstr = JSON.stringify(message);
+            console.log("发送的消息:"+jsonstr);
+            webSocket.send(jsonstr);
         }
     });
 });
 
 
 function loadOnlineFriends() {
+
     var nickName = $.cookie('nickName');
     $.ajax({
         url: '/friends/online',
@@ -52,6 +56,7 @@ function loadOnlineFriends() {
         contentType: "application/json",
         success: function (data) {
             console.log(data);
+            $('#online').html("");
             $.each(data.data, function (index, value) {
                 if (value.nickName != nickName) {
                     var clickFun = "selectFriend('" + value.nickName + "')";
@@ -78,13 +83,12 @@ function loadOnlineFriends() {
 
 
 function selectFriend(nickName) {
-    //给示范加一个未读消息的标志
-
-
     //1.class="active"给选中的节点，其他节点去掉
     $('li[_v-7e56f776]').removeAttr("class");
     //2.给当前节点加上class="active"
     $('#f-' + nickName).attr('class', 'active');
+    //2.1 清除未读消息标识
+    $('#f-' + nickName + ' .weidu').remove();
     //3.切换聊天框 先清楚聊天框li，然后加载与该好友的聊天记录
     $('#msglist').children('li').remove();
     $.ajax({
@@ -135,32 +139,58 @@ function loadMyInfo() {
 
 function connect() {
     var authToken = $.cookie('authToken');
-    webSocket = new WebSocket('ws://localhost:8080/websocket/' + authToken);
+    var webSocket = new WebSocket('ws://localhost:8080/websocket/' + authToken);
     webSocket.onerror = function (event) {
         alert(event.data);
     };
     //与WebSocket建立连接
     webSocket.onopen = function (event) {
         console.log("与服务器建立连接！");
+        console.log(webSocket);
         loadMyInfo();
         loadOnlineFriends();
     };
     //处理服务器返回的信息
     webSocket.onmessage = function (event) {
         var message = JSON.parse(event.data);
-        receiveMessage(message);
+        console.log(message);
+        handleMessage(message);
     };
+    return webSocket;
+}
+
+function handleMessage(message) {
+    var type = message.type;
+    switch (type){
+        case "user" :
+            receiveMessage(message);
+            break;
+        case "online":
+            onlineNotie(message);
+            break;
+        case "downline":
+            downlineNotie(message);
+            break;
+    }
+}
+
+function onlineNotie(message) {
+    loadOnlineFriends();
+}
+
+function downlineNotie() {
+    loadOnlineFriends();
 }
 
 function receiveMessage(message) {
-    //如果消息发送者的聊天框是选中状态，直接在聊天框追加，不是在好友栏显示未读消息“1”
+    //如果消息发送者的聊天框是选中状态，直接在聊天框追加，不是则在好友栏显示未读消息“1”
     //获取目前选中的好友
     var friend = $('li[class="active"] p').html();
     //如果消息发送者的聊天框是选中状态，直接在聊天框追加
     if (friend == message.avatar) {
         //消息记录插入到聊天框
         var msg = '<li _v-b412eea0="">' +
-            '<p class="time" _v-b412eea0=""> <span _v-b412eea0="">' + timestampToTime(timestamp) + '</span> </p>' +
+            '<p class="time" _v-b412eea0=""> <span _v-b412eea0="">' + message.time + '</span> </p>' +
             '<div class="main" _v-b412eea0=""> ' +
             '<img class="avatar" width="30" height="30" _v-b412eea0="" src="image/head/' + message.avatar + '.png">' +
             '<div class="text" _v-b412eea0="">' + message.content + '</div>' +
@@ -168,9 +198,20 @@ function receiveMessage(message) {
             '</li>';
         $('#msglist').append(msg);
         scrollToBottom('msgDiv');
+
     }else {
         //给好友栏的好友追加一个未读消息的标志
-
+        var wdFriend = $('#f-'+message.avatar);
+        var weidu = wdFriend.children('.weidu');
+        var weiduCount = weidu.html();
+        if (weiduCount == undefined){
+            var weiduDiv = '<div class="weidu">'+1+'</div>';
+            wdFriend.append(weiduDiv);
+        }else {
+            var weiduNumber = Number(weiduCount);
+            weiduNumber += 1;
+            weidu.html(weiduNumber);
+        }
     }
 
 }

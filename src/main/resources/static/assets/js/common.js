@@ -14,7 +14,6 @@ function timestampToTime(timestamp) {
 
 function scrollToBottom(id) {
     var scrollHeight = $('#'+id).prop("scrollHeight");
-    console.log(scrollHeight);
     $('#'+id).scrollTop(scrollHeight,200);
 }
 

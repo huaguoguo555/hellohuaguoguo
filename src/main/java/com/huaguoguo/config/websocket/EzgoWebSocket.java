@@ -16,10 +16,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @ServerEndpoint(value = "/websocket/{authToken}")
@@ -79,17 +76,46 @@ public class EzgoWebSocket {
         }
         webSocketMap.put(nickName, this); // 加入map中
         logger.info("有新连接加入！当前在线人数为" + getOnlineCount() + "【nickName-----" + this.nickName + "】");
+        //在好友列表显示我上线了
+        onlineNotie();
+    }
+
+    /**
+     * 上线通知
+     */
+    private void onlineNotie() throws IOException {
+        WebSocketMessage message = new WebSocketMessage();
+        message.setReceiver("all");
+        message.setAvatar("admin");
+        message.setTime(new Date());
+        message.setContent(nickName);
+        message.setType("online");
+        massSend(message);
     }
 
     /**
      * 连接关闭调用的方法
      */
     @OnClose
-    public void onClose() {
+    public void onClose() throws IOException {
         if (!StringUtils.isEmpty(nickName)) {
             webSocketMap.remove(nickName);
             logger.info("有一连接关闭！当前在线人数为" + getOnlineCount() + "【nickName-----" + this.nickName + "】");
+            downlineNotie();
         }
+    }
+
+    /**
+     * 下线通知
+     */
+    private void downlineNotie() throws IOException {
+        WebSocketMessage message = new WebSocketMessage();
+        message.setReceiver("all");
+        message.setAvatar("admin");
+        message.setTime(new Date());
+        message.setContent(nickName);
+        message.setType("downline");
+        massSend(message);
     }
 
     /**
