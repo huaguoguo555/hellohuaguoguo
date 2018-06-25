@@ -1,5 +1,7 @@
 package com.huaguoguo.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.huaguoguo.config.websocket.EzgoWebSocket;
 import com.huaguoguo.entity.ResultModel;
 import com.huaguoguo.entity.UserInfo;
@@ -14,6 +16,7 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 @Service
@@ -36,9 +39,9 @@ public class LoginServiceImpl implements LoginService {
             result.setMsg("登录上来咯，可以开始聊天了");
         }else {
             jedisClient.incr(nickName,1L);
-            EzgoWebSocket ezgoWebSocket = EzgoWebSocket.get(nickName);
-            ezgoWebSocket.sendMessage("offline");
-            result.setMsg("有一个灾舅子被你挤下线了，嚯嚯嚯");
+            result.setStatus(400L);
+            result.setMsg("这个昵称被人用了，换一个，好吗？");
+            return  result;
         }
 
         //获取用户信息
@@ -90,9 +93,7 @@ public class LoginServiceImpl implements LoginService {
         result.setData(onlines);
         result.setStatus(200L);
         result.setMsg("获取成功");
-
         return result;
     }
-
 
 }

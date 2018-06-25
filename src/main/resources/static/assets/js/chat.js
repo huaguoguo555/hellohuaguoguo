@@ -3,8 +3,7 @@ $(document).ready(function () {
 
     $('#send').keyup(function (t) {
 
-        if (t.ctrlKey && t.which == 13) {
-            console.log(webSocket);
+        if (t.which == 13) {
             if (isNull(sendContent)) {
                 alert("不要发空字符串，好吗？");
                 return;
@@ -38,7 +37,7 @@ $(document).ready(function () {
             $("#send").val("");
             //使用websocket发送消息
             var jsonstr = JSON.stringify(message);
-            console.log("发送的消息:"+jsonstr);
+            console.log("发送的消息:" + jsonstr);
             webSocket.send(jsonstr);
         }
     });
@@ -138,8 +137,11 @@ function loadMyInfo() {
 
 
 function connect() {
+    var hostport = document.location.host;
+    console.log("hostport:"+hostport);
+
     var authToken = $.cookie('authToken');
-    var webSocket = new WebSocket('ws://localhost:8080/websocket/' + authToken);
+    var webSocket = new WebSocket('ws://'+ hostport +'/websocket/' + authToken);
     webSocket.onerror = function (event) {
         alert(event.data);
     };
@@ -161,7 +163,7 @@ function connect() {
 
 function handleMessage(message) {
     var type = message.type;
-    switch (type){
+    switch (type) {
         case "user" :
             receiveMessage(message);
             break;
@@ -199,15 +201,15 @@ function receiveMessage(message) {
         $('#msglist').append(msg);
         scrollToBottom('msgDiv');
 
-    }else {
+    } else {
         //给好友栏的好友追加一个未读消息的标志
-        var wdFriend = $('#f-'+message.avatar);
+        var wdFriend = $('#f-' + message.avatar);
         var weidu = wdFriend.children('.weidu');
         var weiduCount = weidu.html();
-        if (weiduCount == undefined){
-            var weiduDiv = '<div class="weidu">'+1+'</div>';
+        if (weiduCount == undefined) {
+            var weiduDiv = '<div class="weidu">' + 1 + '</div>';
             wdFriend.append(weiduDiv);
-        }else {
+        } else {
             var weiduNumber = Number(weiduCount);
             weiduNumber += 1;
             weidu.html(weiduNumber);
@@ -218,6 +220,6 @@ function receiveMessage(message) {
 
 function disconnect() {
     webSocket.close();
-    document.getElementById('response').innerHTML += '<br />' + '与服务器端断开连接';
+    console.log("与服务器端断开连接");
 }
 

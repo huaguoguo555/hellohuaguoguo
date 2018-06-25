@@ -1,5 +1,6 @@
 package com.huaguoguo.controller;
 
+import com.huaguoguo.annotation.CheckAuthToken;
 import com.huaguoguo.config.websocket.EzgoWebSocket;
 import com.huaguoguo.entity.ResultModel;
 import com.huaguoguo.entity.websocket.WebSocketMessage;
