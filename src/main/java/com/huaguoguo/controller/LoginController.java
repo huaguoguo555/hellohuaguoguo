@@ -1,5 +1,6 @@
 package com.huaguoguo.controller;
 
+import com.huaguoguo.annotation.CheckAuthToken;
 import com.huaguoguo.config.websocket.EzgoWebSocket;
 import com.huaguoguo.entity.ResultModel;
 import com.huaguoguo.service.LoginService;
@@ -38,11 +39,39 @@ public class LoginController {
      * 获取在线好友列表
      * @return
      */
+    @CheckAuthToken
     @RequestMapping(value = "/friends/online",method = RequestMethod.GET)
     public Object getOnlineFriends(){
+        
         ResultModel result = new ResultModel();
         result = loginService.getOnlineFriends();
         return result;
     }
 
+
+    public static void main(String[] args) {
+        int count = 100000000;
+        //bufferTest(count);
+        builderTest(count);
+    }
+
+    public static void bufferTest(int count){
+        StringBuffer sb = new StringBuffer();
+        Long start1 = System.currentTimeMillis();
+        for (int i = 0; i < count; i++) {
+            sb.append(i);
+        }
+        Long end1 = System.currentTimeMillis();
+        System.out.println("buffer:"+ (end1-start1));
+    }
+
+    public static void builderTest(int count){
+        StringBuilder sb = new StringBuilder();
+        Long start1 = System.currentTimeMillis();
+        for (int i = 0; i < count; i++) {
+            sb.append(i);
+        }
+        Long end1 = System.currentTimeMillis();
+        System.out.println("builder:"+ (end1-start1));
+    }
 }

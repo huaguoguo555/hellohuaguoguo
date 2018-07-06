@@ -34,11 +34,6 @@ public class PageController {
         return "chatRoom/index";
     }
 
-    @RequestMapping(value = "login",method = RequestMethod.GET)
-    @ResponseBody
-    public String login(){
-        return "login";
-    }
 
 
 }

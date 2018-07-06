@@ -27,3 +27,10 @@ function isNull( str ){
 function getCurrentTimestamp() {
     return Date.parse(new Date());
 }
+
+function isLogin(status) {
+    if (status == 401){
+        alert("请滚回去登录了再来，可以吗？");
+        window.location.href = "/chatUI/login.html";
+    }
+}

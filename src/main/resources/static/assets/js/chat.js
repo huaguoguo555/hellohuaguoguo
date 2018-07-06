@@ -45,7 +45,7 @@ $(document).ready(function () {
 
 
 function loadOnlineFriends() {
-
+    console.log($.cookie('authToken'));
     var nickName = $.cookie('nickName');
     $.ajax({
         url: '/friends/online',
@@ -53,8 +53,12 @@ function loadOnlineFriends() {
         dataType: 'json',
         data: {'nickName': nickName},
         contentType: "application/json",
+        beforeSend: function (request) {
+            request.setRequestHeader("authToken", $.cookie('authToken'));
+        },
         success: function (data) {
             console.log(data);
+            isLogin(data.status);
             $('#online').html("");
             $.each(data.data, function (index, value) {
                 if (value.nickName != nickName) {
@@ -82,6 +86,7 @@ function loadOnlineFriends() {
 
 
 function selectFriend(nickName) {
+
     //1.class="active"给选中的节点，其他节点去掉
     $('li[_v-7e56f776]').removeAttr("class");
     //2.给当前节点加上class="active"
@@ -98,6 +103,7 @@ function selectFriend(nickName) {
             request.setRequestHeader("authToken", $.cookie('authToken'));
         },
         success: function (data) {
+            isLogin(data.status);
             $.each(data.data, function (index, value) {
                 var time = timestampToTime(value.time);
                 if (value.avatar == $.cookie('nickName')) {
@@ -141,6 +147,9 @@ function connect() {
     console.log("hostport:"+hostport);
 
     var authToken = $.cookie('authToken');
+    if (isNull(authToken)){
+        return;
+    }
     var webSocket = new WebSocket('ws://'+ hostport +'/websocket/' + authToken);
     webSocket.onerror = function (event) {
         alert(event.data);

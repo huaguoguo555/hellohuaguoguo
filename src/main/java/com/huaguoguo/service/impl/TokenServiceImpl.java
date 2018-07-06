@@ -4,6 +4,7 @@ import com.huaguoguo.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -35,8 +36,17 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public boolean checkToken(String token) {
-
-        return false;
+        if (StringUtils.isEmpty(token)){
+            return false;
+        }
+        String userId = redisTemplate.opsForValue().get(token);
+        if (StringUtils.isEmpty(userId)){
+            return false;
+        }
+        //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
+        redisTemplate.boundValueOps(token).expire(TOKEN_EXPIRES_INIT_HOUR,TimeUnit.HOURS);
+        redisTemplate.boundValueOps(userId).expire(TOKEN_EXPIRES_INIT_HOUR,TimeUnit.HOURS);
+        return true;
     }
 
     @Override

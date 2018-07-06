@@ -42,6 +42,7 @@ public class ChatController {
      * 获取聊天记录
      * @return
      */
+    @CheckAuthToken
     @RequestMapping(value = "/record/chat",method = RequestMethod.GET)
     public Object getChatRecord(String friend, @RequestHeader("authToken") String authToken){
         ResultModel result = new ResultModel();
