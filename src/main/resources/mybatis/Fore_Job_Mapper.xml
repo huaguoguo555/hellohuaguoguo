@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huaguoguo.mapper.ForeJobDao">
+	<resultMap id="BaseResultMap" type="com.huaguoguo.entity.ForeJob">
+		<result column="FJ_ID" jdbcType="VARCHAR" property="id" />
+		<result column="FJ_STATUS" jdbcType="VARCHAR" property="status" />
+	</resultMap>
+
+
+	<select id="selectForeJob" parameterType="com.huaguoguo.entity.ForeJob" resultMap="BaseResultMap">
+		select *
+		from fore_job
+		<where>
+			<if test=" id != null and id != '' ">
+				FJ_ID = #{id}
+			</if>
+			<if test=" buiUsername != null and buiUsername != '' ">
+				FJ_STATUS = #{status}
+			</if>
+		</where>
+		FOR UPDATE
+	</select>
+
+	<update id="updateForeJob" parameterType="com.huaguoguo.entity.ForeJob">
+		UPDATE fore_job SET FJ_STATUS = #{status}
+		WHERE FJ_ID = #{id}
+	</update>
+
+
+	<insert id="insertForeJob" parameterType="com.huaguoguo.entity.ForeJob">
+		INSERT INTO fore_job
+		(FJ_ID,FJ_STATUS)
+		VALUES (#{id},#{status})
+	</insert>
+</mapper>

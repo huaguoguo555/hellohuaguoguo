@@ -15,7 +15,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.SerializationUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +30,9 @@ import java.util.Map;
   * @Date: 2018/6/12 16:16
   */
 @RestController
-public class ChatController {
+public class ChatController{
+
+
 
     @Autowired
     private ChatService chatService;

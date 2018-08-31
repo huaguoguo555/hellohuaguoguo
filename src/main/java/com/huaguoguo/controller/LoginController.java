@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,8 +21,13 @@ import java.util.Map;
 @RestController
 public class LoginController {
 
-    @Autowired
+
     private LoginService loginService;
+
+    @Autowired
+    public void setLoginService(LoginService loginService) {
+        this.loginService = loginService;
+    }
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public Object login(@RequestBody Map<String,Object> input, HttpServletResponse response) throws IOException {

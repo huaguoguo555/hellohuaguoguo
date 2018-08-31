@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 
 import java.util.Arrays;
 
@@ -59,6 +60,18 @@ public class CacheConfig extends CachingConfigurerSupport{
         redisConnectionFactory.setPassword(password);
         redisConnectionFactory.setDatabase(database);
         return redisConnectionFactory;
+    }
+
+    /**
+     * 配置redis事件监听
+     * @param factory
+     * @return
+     */
+    @Bean
+    public RedisMessageListenerContainer listenerContainer(JedisConnectionFactory factory){
+        RedisMessageListenerContainer listenerContainer = new RedisMessageListenerContainer();
+        listenerContainer.setConnectionFactory(factory);
+        return listenerContainer;
     }
 
 }
